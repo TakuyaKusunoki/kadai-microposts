@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-use App\Http\Request;
+use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
 class MicropostsController extends Controller
@@ -14,24 +14,28 @@ class MicropostsController extends Controller
         $data = [];
         if (\Auth::check()) {
             $user = \Auth::user();
-            $microposts = $user->microposts()->orderBy("created_at", "desc")->paginate(10);
-            
+            $microposts = $user->feed_microposts()->orderBy('created_at', 'desc')->paginate(10);
+
             $data = [
-                "user" => $user,
-                "microposts" => $microposts,
+                'user' => $user,
+                'microposts' => $microposts,
             ];
+            
             $data += $this->counts($user);
-            return view("users.show", $data);
+            return view('users.show', $data);
         }else {
-            return view("welcome");
+            return view('welcome');
         }
-    
     }
     
     public function store(Request $request)
     {
         $this->validate($request, [
-            "content" => $request->content,
+            'content' => 'required|max:191',
+        ]);
+        
+        $request->user()->microposts()->create([
+            'content' => $request->content,
         ]);
         
         return redirect("/");
@@ -47,4 +51,6 @@ class MicropostsController extends Controller
         
         return redirect()->back();
     }
+    
+    
 }
