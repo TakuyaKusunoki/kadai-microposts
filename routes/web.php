@@ -33,3 +33,16 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::resource('microposts', 'MicropostsController', ['only' => ['store', 'destroy']]);
 });
+
+Route::group(['middleware' => 'auth'], function () {
+    Route::resource('users', 'UsersController', ['only' => ['index', 'show']]);
+    Route::group(['prefix' => 'users/{id}'], function () {
+        Route::post('favorite', 'FavoriteController@store')->name('user.favorite');
+        Route::delete('unfavorite', 'FavoriteController@destroy')->name('user.unfavorite');
+        Route::get('favorite_micropost', 'UsersController@favorite_micropost')->name('users.favorite_micropost');
+        
+        Route::get('favorites_micropost', 'UsersController@favorite')->name('users.favorites');
+    });
+
+    Route::resource('microposts', 'MicropostsController', ['only' => ['store', 'destroy']]);
+});
